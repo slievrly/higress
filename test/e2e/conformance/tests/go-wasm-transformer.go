@@ -259,7 +259,6 @@ var WasmPluginsTransformer = suite.ConformanceTest{
 								"X-map": "vmap",
 							},
 						},
-
 					},
 				},
 				Response: http.AssertionResponse{

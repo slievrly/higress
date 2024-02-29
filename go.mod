@@ -50,7 +50,7 @@ require (
 	gopkg.in/yaml.v2 v2.4.0
 	gopkg.in/yaml.v3 v3.0.1
 	istio.io/api v0.0.0-20211122181927-8da52c66ff23
-	istio.io/client-go v1.12.0-rc.1.0.20211118171212-b744b6f111e4
+	istio.io/client-go v1.12.0-rc.1.0.20211118171212-b744b6f111e4 // indirect
 	istio.io/gogo-genproto v0.0.0-20211115195057-0e34bdd2be67
 	istio.io/istio v0.0.0
 	istio.io/pkg v0.0.0-20211115195056-e379f31ee62a
@@ -64,8 +64,9 @@ require (
 )
 
 require (
-	cloud.google.com/go v0.98.0 // indirect
+	cloud.google.com/go v0.97.0 // indirect
 	cloud.google.com/go/logging v1.4.2 // indirect
+	cloud.google.com/go/security v1.1.0 // indirect
 	contrib.go.opencensus.io/exporter/prometheus v0.4.0 // indirect
 	github.com/Azure/go-ansiterm v0.0.0-20210617225240-d185dfc1b5a1 // indirect
 	github.com/Azure/go-autorest v14.2.0+incompatible // indirect
@@ -88,7 +89,7 @@ require (
 	github.com/aliyun/alibaba-cloud-sdk-go v1.61.1704 // indirect
 	github.com/armon/go-metrics v0.4.1 // indirect
 	github.com/asaskevich/govalidator v0.0.0-20200428143746-21a406dcc535 // indirect
-	github.com/aws/aws-sdk-go v1.43.16 // indirect
+	github.com/aws/aws-sdk-go v1.41.7 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/bmatcuk/doublestar/v4 v4.6.0 // indirect
 	github.com/braydonk/yaml v0.7.0 // indirect
@@ -111,7 +112,6 @@ require (
 	github.com/cyphar/filepath-securejoin v0.2.3 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/decred/dcrd/dcrec/secp256k1/v3 v3.0.0 // indirect
-	github.com/distribution/distribution/v3 v3.0.0-20221201083218-92d136e113cf // indirect
 	github.com/docker/buildx v0.9.1 // indirect
 	github.com/docker/distribution v2.8.1+incompatible // indirect
 	github.com/docker/docker-credential-helpers v0.7.0 // indirect
@@ -255,7 +255,6 @@ require (
 	go.uber.org/zap v1.21.0 // indirect
 	golang.org/x/crypto v0.11.0 // indirect
 	golang.org/x/exp v0.0.0-20230321023759-10a507213a29 // indirect
-	golang.org/x/net v0.12.0 // indirect
 	golang.org/x/oauth2 v0.6.0 // indirect
 	golang.org/x/sync v0.2.0 // indirect
 	golang.org/x/sys v0.10.0 // indirect
@@ -305,10 +304,9 @@ require (
 	github.com/google/yamlfmt v0.10.0
 	github.com/kylelemons/godebug v1.1.0
 	github.com/tidwall/gjson v1.17.0
+	golang.org/x/net v0.12.0
 	helm.sh/helm/v3 v3.7.1
 	k8s.io/apiextensions-apiserver v0.25.4
-	knative.dev/networking v0.0.0-20220302134042-e8b2eb995165
-	knative.dev/pkg v0.0.0-20220301181942-2fdd5f232e77
 )
 
 replace (
