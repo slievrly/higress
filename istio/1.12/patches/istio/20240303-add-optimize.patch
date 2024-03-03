@@ -1,6 +1,6 @@
 diff -Naur istio/pilot/pkg/xds/debug.go istio_new/pilot/pkg/xds/debug.go
 --- istio/pilot/pkg/xds/debug.go	2024-03-03 22:07:42.000000000 +0800
-+++ istio_new/pilot/pkg/xds/debug.go	2024-03-03 22:36:54.000000000 +0800
++++ istio_new/pilot/pkg/xds/debug.go	2024-03-03 22:48:03.000000000 +0800
 @@ -312,6 +312,7 @@
  
  func (s *DiscoveryServer) getApiDoc(w http.ResponseWriter, req *http.Request) {
@@ -9,7 +9,7 @@ diff -Naur istio/pilot/pkg/xds/debug.go istio_new/pilot/pkg/xds/debug.go
  	if hostname == "" {
  		http.Error(w, "Query parameter 'hostname' is missing", http.StatusBadRequest)
  		return
-@@ -322,25 +323,45 @@
+@@ -322,27 +323,48 @@
  		return
  	}
  	apiServiceDoc := ApiServiceDoc{}
@@ -51,9 +51,9 @@ diff -Naur istio/pilot/pkg/xds/debug.go istio_new/pilot/pkg/xds/debug.go
 +		http.Error(w, "Error fetching API docs", http.StatusInternalServerError)
 +		return
  	}
--	writeJSON(w, apiServiceDoc)
-+}
-+
+ 	writeJSON(w, apiServiceDoc)
+ }
+ 
 +func fetchAPIDocs(url string) ([]byte, int, error) {
 +	resp, err := http.Get(url)
 +	if err != nil {
@@ -67,6 +67,8 @@ diff -Naur istio/pilot/pkg/xds/debug.go istio_new/pilot/pkg/xds/debug.go
 +	}
 +
 +	return body, resp.StatusCode, nil
- }
- 
++}
++
  // Dumps info about the endpoint shards, tracked using the new direct interface.
+ // Legacy registry provides are synced to the new data structure as well, during
+ // the full push.
