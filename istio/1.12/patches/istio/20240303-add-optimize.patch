@@ -1,0 +1,71 @@
+diff -Naur istio/pilot/pkg/xds/debug.go istio_new/pilot/pkg/xds/debug.go
+--- istio/pilot/pkg/xds/debug.go	2024-03-03 22:07:42.000000000 +0800
++++ istio_new/pilot/pkg/xds/debug.go	2024-03-03 22:04:42.000000000 +0800
+@@ -312,6 +312,7 @@
+ 
+ func (s *DiscoveryServer) getApiDoc(w http.ResponseWriter, req *http.Request) {
+ 	hostname := req.URL.Query().Get("hostname")
++	istiolog.Info("get api-docs from %v", hostname)
+ 	if hostname == "" {
+ 		http.Error(w, "Query parameter 'hostname' is missing", http.StatusBadRequest)
+ 		return
+@@ -322,25 +323,45 @@
+ 		return
+ 	}
+ 	apiServiceDoc := ApiServiceDoc{}
++	var lastError error
+ 	for _, port := range service.Ports {
+ 		apiServiceDoc.Host = fmt.Sprintf("%s:%d", hostname, port)
+ 		url := fmt.Sprintf("http://%s/api-docs", apiServiceDoc.Host)
+-		resp, err := http.Get(url)
+-		apiServiceDoc.Status = resp.StatusCode
+-		if err != nil || resp.StatusCode != http.StatusOK {
+-			apiServiceDoc.ErrorMsg = "API docs not available"
+-		} else {
+-			defer resp.Body.Close()
+-			body, err := io.ReadAll(resp.Body)
+-			if err != nil {
+-				apiServiceDoc.ErrorMsg = "Error decoding API docs"
+-			} else {
+-				apiServiceDoc.ApiDoc = string(body)
+-			}
+-			break
++
++		body, statusCode, err := fetchAPIDocs(url)
++
++		if err != nil {
++			lastError = err
++			// Log the error but don't return, try other ports.
++			istiolog.Warn("Error fetching API docs from %v: %v", url, err)
++			continue
+ 		}
++
++		apiServiceDoc.Status = statusCode
++		apiServiceDoc.ApiDoc = string(body)
++		lastError = nil // Found valid API docs, reset the lastError.
++		break
++	}
++
++	if lastError != nil {
++		http.Error(w, "Error fetching API docs", http.StatusInternalServerError)
++		return
+ 	}
+-	writeJSON(w, apiServiceDoc)
++}
++
++func fetchAPIDocs(url string) ([]byte, int, error) {
++	resp, err := http.Get(url)
++	if err != nil {
++		return nil, 0, err
++	}
++	defer resp.Body.Close()
++
++	body, err := io.ReadAll(resp.Body)
++	if err != nil {
++		return nil, resp.StatusCode, err
++	}
++
++	return body, resp.StatusCode, nil
+ }
+ 
+ // Dumps info about the endpoint shards, tracked using the new direct interface.
