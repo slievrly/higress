@@ -20,9 +20,9 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
-	"os"
 	"path"
 	"strings"
+	"os"
 
 	"github.com/gogo/protobuf/types"
 	"github.com/golang/protobuf/jsonpb"
@@ -31,7 +31,6 @@ import (
 )
 
 const DefaultDomainSuffix = "cluster.local"
-
 var domainSuffix = os.Getenv("DOMAIN_SUFFIX")
 
 type ClusterNamespacedName struct {
@@ -83,9 +82,9 @@ func MessageToGoGoStruct(msg proto.Message) (*types.Struct, error) {
 }
 
 func CreateServiceFQDN(namespace, name string) string {
-	if domainSuffix == "" {
-		domainSuffix = DefaultDomainSuffix
-	}
+        if domainSuffix == "" {
+        	domainSuffix = DefaultDomainSuffix
+        }
 	return fmt.Sprintf("%s.%s.svc.%s", name, namespace, domainSuffix)
 }
 

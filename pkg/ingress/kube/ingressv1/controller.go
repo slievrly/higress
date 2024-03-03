@@ -358,6 +358,7 @@ func (c *controller) ConvertGateway(convertOptions *common.ConvertOptions, wrapp
 		return fmt.Errorf("invalid ingress rule %s:%s in cluster %s, either `defaultBackend` or `rules` must be specified", cfg.Namespace, cfg.Name, c.options.ClusterId)
 	}
 
+
 	for _, rule := range ingressV1.Rules {
 		// Need create builder for every rule.
 		domainBuilder := &common.IngressDomainBuilder{
