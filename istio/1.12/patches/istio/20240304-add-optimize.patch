@@ -1,0 +1,81 @@
+diff -Naur istio/pilot/pkg/xds/debug.go istio_new/pilot/pkg/xds/debug.go
+--- istio/pilot/pkg/xds/debug.go	2024-03-04 11:13:47.000000000 +0800
++++ istio_new/pilot/pkg/xds/debug.go	2024-03-04 11:06:45.000000000 +0800
+@@ -24,6 +24,7 @@
+ 	"net/http"
+ 	"net/http/pprof"
+ 	"sort"
++	"strconv"
+ 	"strings"
+ 	"time"
+ 
+@@ -317,35 +318,52 @@
+ 		http.Error(w, "Query parameter 'hostname' is missing", http.StatusBadRequest)
+ 		return
+ 	}
+-	service := s.Env.ServiceDiscovery.GetService(host.Name(hostname))
++	serviceHostName := hostname
++	port := 0
++	if strings.Contains(hostname, ":") {
++		split := strings.SplitN(hostname, ":", 2)
++		serviceHostName = split[0]
++		port, _ = strconv.Atoi(split[1])
++	}
++	service := s.Env.ServiceDiscovery.GetService(host.Name(serviceHostName))
+ 	if service == nil {
+ 		http.Error(w, "Service not found", http.StatusNotFound)
+ 		return
+ 	}
+ 	apiServiceDoc := ApiServiceDoc{}
+-	var lastError error
+-	for _, port := range service.Ports {
+-		apiServiceDoc.Host = fmt.Sprintf("%s:%d", hostname, port.Port)
++	if port > 0 {
++		apiServiceDoc.Host = fmt.Sprintf("%s:%d", hostname, port)
+ 		url := fmt.Sprintf("http://%s/api-docs", apiServiceDoc.Host)
+-
+ 		body, statusCode, err := fetchAPIDocs(url)
+-
+ 		if err != nil {
+-			lastError = err
+-			// Log the error but don't return, try other ports.
+-			istiolog.Warn("Error fetching API docs from %s : %v", url, err)
+-			continue
++			http.Error(w, "Error fetching API docs", http.StatusInternalServerError)
++			return
+ 		}
+-
+ 		apiServiceDoc.Status = statusCode
+ 		apiServiceDoc.ApiDoc = string(body)
+-		lastError = nil // Found valid API docs, reset the lastError.
+-		break
+-	}
++	} else {
++		// Try all ports.
++		var lastError error
++		for _, port := range service.Ports {
++			apiServiceDoc.Host = fmt.Sprintf("%s:%d", hostname, port.Port)
++			url := fmt.Sprintf("http://%s/api-docs", apiServiceDoc.Host)
++			body, statusCode, err := fetchAPIDocs(url)
++			if err != nil {
++				lastError = err
++				// Log the error but don't return, try other ports.
++				istiolog.Warn("Error fetching API docs from %s : %v", url, err)
++				continue
++			}
+ 
+-	if lastError != nil {
+-		http.Error(w, "Error fetching API docs", http.StatusInternalServerError)
+-		return
++			apiServiceDoc.Status = statusCode
++			apiServiceDoc.ApiDoc = string(body)
++			lastError = nil // Found valid API docs, reset the lastError.
++			break
++		}
++		if lastError != nil {
++			http.Error(w, "Error fetching API docs", http.StatusInternalServerError)
++			return
++		}
+ 	}
+ 	writeJSON(w, apiServiceDoc)
+ }
