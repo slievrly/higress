@@ -1,6 +1,6 @@
 diff -Naur istio/pilot/pkg/xds/debug.go istio_new/pilot/pkg/xds/debug.go
 --- istio/pilot/pkg/xds/debug.go	2024-03-04 11:13:47.000000000 +0800
-+++ istio_new/pilot/pkg/xds/debug.go	2024-03-04 11:06:45.000000000 +0800
++++ istio_new/pilot/pkg/xds/debug.go	2024-03-04 11:31:02.000000000 +0800
 @@ -24,6 +24,7 @@
  	"net/http"
  	"net/http/pprof"
@@ -9,7 +9,7 @@ diff -Naur istio/pilot/pkg/xds/debug.go istio_new/pilot/pkg/xds/debug.go
  	"strings"
  	"time"
  
-@@ -317,35 +318,52 @@
+@@ -317,35 +318,53 @@
  		http.Error(w, "Query parameter 'hostname' is missing", http.StatusBadRequest)
  		return
  	}
@@ -31,7 +31,7 @@ diff -Naur istio/pilot/pkg/xds/debug.go istio_new/pilot/pkg/xds/debug.go
 -	for _, port := range service.Ports {
 -		apiServiceDoc.Host = fmt.Sprintf("%s:%d", hostname, port.Port)
 +	if port > 0 {
-+		apiServiceDoc.Host = fmt.Sprintf("%s:%d", hostname, port)
++		apiServiceDoc.Host = fmt.Sprintf("%s:%d", serviceHostName, port)
  		url := fmt.Sprintf("http://%s/api-docs", apiServiceDoc.Host)
 -
  		body, statusCode, err := fetchAPIDocs(url)
@@ -52,6 +52,7 @@ diff -Naur istio/pilot/pkg/xds/debug.go istio_new/pilot/pkg/xds/debug.go
 -	}
 +	} else {
 +		// Try all ports.
++		istiolog.Info("Try all ports for service %s", hostname)
 +		var lastError error
 +		for _, port := range service.Ports {
 +			apiServiceDoc.Host = fmt.Sprintf("%s:%d", hostname, port.Port)
